@@ -32,7 +32,7 @@ function App() {
 
       // Make a POST request to your Python script endpoint
       axios
-        .post("/api/transcribe", formData)
+        .post("http://localhost:8000/", formData)
         .then((response) => {
           // Handle the response from the Python script
           console.log(response.data);
