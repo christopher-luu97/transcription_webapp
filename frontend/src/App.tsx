@@ -1,15 +1,25 @@
-import React, { ChangeEvent, DragEvent, useState } from "react";
+import React, { ChangeEvent, DragEvent, useState, useRef } from "react";
 import "./App.css";
 import axios from "axios";
+import WaveForm from "./components/WaveForm";
+import * as types from "./common/types";
 
 function App() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | undefined>();
+  const [analyzerData, setAnalyzerData] = useState<types.AnalyzerData | null>(
+    null
+  );
+  const audioElmRef = useRef<HTMLAudioElement | null>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
     }
+    if (!file) return;
+    setAudioUrl(URL.createObjectURL(file));
+    audioAnalyzer();
   };
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
@@ -22,6 +32,9 @@ function App() {
     if (file) {
       setSelectedFile(file);
     }
+    if (!file) return;
+    setAudioUrl(URL.createObjectURL(file));
+    audioAnalyzer();
   };
 
   const handleTranscribe = () => {
@@ -44,6 +57,27 @@ function App() {
     }
   };
 
+  const audioAnalyzer = () => {
+    const audioElement = audioElmRef.current;
+    if (!audioElement) return;
+
+    const audioCtx = new (window.AudioContext ||
+      (window as any).webkitAudioContext)();
+    const analyzer = audioCtx.createAnalyser();
+    analyzer.fftSize = 2048;
+
+    const bufferLength = analyzer.frequencyBinCount;
+    const dataArray = new Uint8Array(bufferLength);
+
+    const source = audioCtx.createMediaElementSource(audioElement);
+    source.connect(analyzer);
+    source.connect(audioCtx.destination);
+    source.mediaElement.onended = () => {
+      source.disconnect();
+    };
+
+    setAnalyzerData({ analyzer, bufferLength, dataArray });
+  };
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900">
       <div
@@ -66,6 +100,27 @@ function App() {
             Selected File: {selectedFile.name}
           </p>
         )}
+        {analyzerData && <WaveForm analyzerData={analyzerData} />}
+        <div
+          style={{
+            height: 80,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <audio
+            src={audioUrl ?? ""}
+            controls
+            ref={audioElmRef}
+            onEnded={() => {
+              if (audioElmRef.current) {
+                audioElmRef.current.pause();
+                audioElmRef.current.currentTime = 0;
+              }
+            }}
+          />{" "}
+        </div>
         <button
           onClick={handleTranscribe}
           className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded mt-4 button-expand"

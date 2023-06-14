@@ -7,11 +7,11 @@ def transcribe(request):
     if request.method == 'POST' and 'file' in request.FILES:
         file = request.FILES['file']
         # Do further processing with the file, such as transcription
-
         # Example response
         response_data = {
             'status': 'success',
-            'message': 'File received and processed successfully'
+            'message': 'File received and processed successfully',
+            'file': 'File'
         }
         return JsonResponse(response_data)
     else:
