@@ -23,3 +23,8 @@
 /frontend/yarn-error.log*
 
 /frontend/package-lock.json
+
+*.wav
+*.mp3
+*.mp4
+*.m4a

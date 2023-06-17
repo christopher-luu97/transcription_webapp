@@ -20,7 +20,7 @@ from rest_framework import routers
 
 router = routers.DefaultRouter()
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    # path('api/transcribe', transcribe, name='transcribe'),
-    path('', transcribe, name='transcribe'),
+    #path('admin/', admin.site.urls),
+    path('backend/transcription_webapp/transcribe/', transcribe, name='transcribe'),
+    #path('', transcribe, name='transcribe'),
 ]
