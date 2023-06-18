@@ -1,9 +1,17 @@
-import React, { ChangeEvent, DragEvent, useState, useRef } from "react";
+import React, {
+  ChangeEvent,
+  DragEvent,
+  useState,
+  useRef,
+  useEffect,
+} from "react";
 import "./App.css";
 import axios from "axios";
 import WaveForm from "./components/WaveForm";
 import * as types from "./common/types";
 import TranscriptionOutput from "./components/TranscriptionOutput";
+import DownloadDropdown from "./components/DownloadDropdown";
+import { FaSpinner } from "react-icons/fa";
 
 function App() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -15,15 +23,16 @@ function App() {
     types.TranscriptionItem[] | null
   >(null);
   const audioElmRef = useRef<HTMLAudioElement | null>(null);
+  const [responseStatus, setResponseStatus] = useState<number | null>(null);
+  const [transcribing, setTranscribing] = useState(false);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setSelectedFile(file);
+      setAudioUrl(URL.createObjectURL(file));
+      audioAnalyzer();
     }
-    if (!file) return;
-    setAudioUrl(URL.createObjectURL(file));
-    audioAnalyzer();
   };
 
   const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
@@ -35,10 +44,8 @@ function App() {
     const file = e.dataTransfer.files?.[0];
     if (file) {
       setSelectedFile(file);
+      setAudioUrl(URL.createObjectURL(file));
     }
-    if (!file) return;
-    setAudioUrl(URL.createObjectURL(file));
-    audioAnalyzer();
   };
 
   const handleTranscribe = () => {
@@ -59,11 +66,17 @@ function App() {
             const responseData = response.data;
             setTranscriptionData(responseData.data);
           }
+          setResponseStatus(response.status); // Set responseStatus regardless of the status code
+          setTranscribing(false); // Set transcribing to false
         })
         .catch((error) => {
           // Handle any errors that occur during the request
           console.error(error);
+          setResponseStatus(null); // Reset responseStatus to null
+          setTranscribing(false); // Set transcribing to false
         });
+
+      setTranscribing(true); // Set transcribing to true when transcribe button is clicked
     }
   };
 
@@ -88,14 +101,15 @@ function App() {
 
     setAnalyzerData({ analyzer, bufferLength, dataArray });
   };
+
   return (
     <div className="min-h-screen bg-gray-900">
       <div className="flex items-center justify-center">
-        <h1 className="text-5xl font-bold mb-4 text-white text-center">
+        <h1 className="text-5xl font-bold mb-4 text-white text-center my-10">
           Transcription WebApp
         </h1>
       </div>
-      <div className="flex flex-grow">
+      <div className="flex flex-grow my-10">
         <div className="flex flex-col w-1/4 px-4">
           <div
             className="bg-white p-8 rounded-lg shadow-lg flex flex-col items-center"
@@ -149,17 +163,34 @@ function App() {
             <button
               onClick={handleTranscribe}
               className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded mb-2 button-expand"
-              disabled={!selectedFile}
+              disabled={!selectedFile || transcribing}
             >
-              Transcribe
+              {transcribing && responseStatus !== 200 ? (
+                <FaSpinner className="text-3xl text-white animate-spin" />
+              ) : (
+                "Transcribe"
+              )}
             </button>
           </div>
         </div>
-        <div className="flex px-4 bg-white rounded-lg">
-          {transcriptionData && (
-            <TranscriptionOutput transcriptionData={transcriptionData} />
-          )}
-        </div>
+        {responseStatus === 200 && (
+          <div className="flex flex-col bg-white rounded-lg">
+            <div
+              className="flex-4 px-4 overflow-auto"
+              style={{ maxHeight: "calc(100vh - 250px)" }}
+            >
+              {transcriptionData && (
+                <TranscriptionOutput
+                  transcriptionData={transcriptionData}
+                  maxHeight={parseInt("100vh") - 250}
+                />
+              )}
+            </div>
+            <div className="flex-1 px-4">
+              <DownloadDropdown transcriptionData={transcriptionData} />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

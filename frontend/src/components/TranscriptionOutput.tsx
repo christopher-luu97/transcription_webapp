@@ -9,10 +9,12 @@ import { TranscriptionItem } from "../common/types";
 
 interface TranscriptionOutputProps {
   transcriptionData: TranscriptionItem[];
+  maxHeight: number;
 }
 
 const TranscriptionOutput: React.FC<TranscriptionOutputProps> = ({
   transcriptionData,
+  maxHeight,
 }) => {
   const [editableIndex, setEditableIndex] = useState<number | null>(null);
   const [editedText, setEditedText] = useState<string>("");
@@ -64,7 +66,11 @@ const TranscriptionOutput: React.FC<TranscriptionOutputProps> = ({
 
   return (
     <div className="flex-1" style={{ width: "100%" }}>
-      <div ref={divRef} className="mt-8">
+      <div
+        ref={divRef}
+        className="mt-8 overflow-y-auto"
+        style={{ maxHeight: `${maxHeight}px`, width: "100%" }}
+      >
         <h2 className="text-2xl font-bold mb-4">Transcription Output:</h2>
         <ul className="space-y-4">
           {transcriptionData.map((item, index) => (
