@@ -3,6 +3,7 @@ import "./App.css";
 import axios from "axios";
 import WaveForm from "./components/WaveForm";
 import * as types from "./common/types";
+import TranscriptionOutput from "./components/TranscriptionOutput";
 
 function App() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -10,6 +11,9 @@ function App() {
   const [analyzerData, setAnalyzerData] = useState<types.AnalyzerData | null>(
     null
   );
+  const [transcriptionData, setTranscriptionData] = useState<
+    types.TranscriptionItem[] | null
+  >(null);
   const audioElmRef = useRef<HTMLAudioElement | null>(null);
 
   const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -50,8 +54,11 @@ function App() {
           formData
         )
         .then((response) => {
-          // Handle the response from the Python script
-          console.log(response.data);
+          if (response.status === 200) {
+            // Handle the response from the Python script
+            const responseData = response.data;
+            setTranscriptionData(responseData.data);
+          }
         })
         .catch((error) => {
           // Handle any errors that occur during the request
@@ -82,55 +89,77 @@ function App() {
     setAnalyzerData({ analyzer, bufferLength, dataArray });
   };
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-900">
-      <div
-        className="bg-white p-8 rounded-lg shadow-lg flex flex-col items-center"
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-      >
-        <h1 className="text-3xl font-bold mb-4">File Upload</h1>
-        <p className="text-gray-500 mb-6">
-          Click the button or drag and drop a file to upload
-        </p>
-        <input
-          type="file"
-          accept=".wav, .mp3, .mp4, .m4a"
-          className="py-2 px-4 bg-gray-200 text-gray-700 rounded"
-          onChange={handleFileChange}
-        />
-        {selectedFile && (
-          <p className="text-green-500 mt-4">
-            Selected File: {selectedFile.name}
-          </p>
-        )}
-        {analyzerData && <WaveForm analyzerData={analyzerData} />}
-        <div
-          style={{
-            height: 80,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          <audio
-            src={audioUrl ?? ""}
-            controls
-            ref={audioElmRef}
-            onEnded={() => {
-              if (audioElmRef.current) {
-                audioElmRef.current.pause();
-                audioElmRef.current.currentTime = 0;
-              }
-            }}
-          />{" "}
+    <div className="min-h-screen bg-gray-900">
+      <div className="flex items-center justify-center">
+        <h1 className="text-5xl font-bold mb-4 text-white text-center">
+          Transcription WebApp
+        </h1>
+      </div>
+      <div className="flex flex-grow">
+        <div className="flex flex-col w-1/4 px-4">
+          <div
+            className="bg-white p-8 rounded-lg shadow-lg flex flex-col items-center"
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+          >
+            <h1 className="text-3xl font-bold mb-4">File Upload</h1>
+            <p className="text-gray-500 mb-6">
+              Click the button or drag and drop a file to upload
+            </p>
+            <input
+              type="file"
+              accept=".wav, .mp3, .mp4, .m4a"
+              className="py-2 px-4 flex bg-gray-200 text-gray-700 rounded w-full"
+              style={{ marginBottom: "20px" }}
+              onChange={handleFileChange}
+            />
+
+            <div
+              style={{
+                flex: "1",
+                display: "flex",
+                flexDirection: "column",
+                marginBottom: "1px",
+              }}
+            >
+              {" "}
+              {analyzerData && <WaveForm analyzerData={analyzerData} />}
+              <div
+                style={{
+                  height: 80,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  marginBottom: "1px",
+                }}
+              >
+                <audio
+                  src={audioUrl ?? ""}
+                  controls
+                  ref={audioElmRef}
+                  onEnded={() => {
+                    if (audioElmRef.current) {
+                      audioElmRef.current.pause();
+                      audioElmRef.current.currentTime = 0;
+                    }
+                  }}
+                />
+              </div>
+            </div>
+            <button
+              onClick={handleTranscribe}
+              className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded mb-2 button-expand"
+              disabled={!selectedFile}
+            >
+              Transcribe
+            </button>
+          </div>
         </div>
-        <button
-          onClick={handleTranscribe}
-          className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded mt-4 button-expand"
-          disabled={!selectedFile}
-        >
-          Transcribe
-        </button>
+        <div className="flex px-4 bg-white rounded-lg">
+          {transcriptionData && (
+            <TranscriptionOutput transcriptionData={transcriptionData} />
+          )}
+        </div>
       </div>
     </div>
   );

@@ -71,6 +71,35 @@ class Transcribe:
 
     async def get_file_by_id(self, file_id):
         return await sync_to_async(File.objects.get)(id=file_id)
+    
+    def _seconds_to_time(self, time_value):
+        """
+        Convert seconds to time based on a value
+        Args:
+            time_value (float): Time in seconds
+        Returns:
+            str: String formatted in HH:MM:SS
+        """
+        m,s = divmod(time_value, 60)
+        h, m = divmod(m, 60)
+        s = int(s)
+        m = int(m)
+        h = int(h)
+        new_value = f'{h:02d}:{m:02d}:{s:02d}'
+        return new_value
+
+
+    async def _create_hms_time(self, segments):
+        """
+        Create new datetime values that abstract away from ever increasing seconds.
+        Output is now of HH:MM:SS
+        Returns:
+            new_segments (list): Updated whisper results with new column
+        """
+        for item in segments:
+            item['start_time_hms'] = self._seconds_to_time(item['start'])
+            item['end_time_hms'] = self._seconds_to_time(item['end'])
+        return segments
 
     async def transcribe_file(self, file):
         model = self.model
@@ -89,7 +118,7 @@ class Transcribe:
         for txt in result['segments']:
             text_info.append(txt['text'])
         result_text = ''.join(text_info).strip(" ")
-
+        output = await self._create_hms_time(result['segments'])
         # file_obj = File()
         # file_obj.title = "Temporary File"
         # file_obj.transcript = result_text
@@ -97,7 +126,7 @@ class Transcribe:
         # # file.transcript = transcription['text'].strip()
         # # file.save()
         # data = MediaFileSerializer(file).data
-        return result_text
+        return output
 
 
     

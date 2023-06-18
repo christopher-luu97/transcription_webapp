@@ -18,9 +18,10 @@ function animateBars(
 
   canvasCtx.fillStyle = "#000";
 
-  const HEIGHT = canvas.height / 2;
+  const HEIGHT = canvas.height;
+  const WIDTH = canvas.width;
 
-  var barWidth = Math.ceil(canvas.width / bufferLength) * 2.5;
+  let barWidth = Math.ceil(WIDTH / bufferLength) * 2.5;
   let barHeight;
   let x = 0;
 
@@ -55,7 +56,7 @@ const WaveForm = ({ analyzerData }: WaveFormProps) => {
       requestAnimationFrame(animate);
       // eslint-disable-next-line no-self-assign
       canvas.width = canvas.width;
-      canvasCtx.translate(0, canvas.offsetHeight / 2 - 115);
+      canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
       animateBars(analyzer, canvas, canvasCtx, dataArray, bufferLength);
     };
 
@@ -69,12 +70,14 @@ const WaveForm = ({ analyzerData }: WaveFormProps) => {
   return (
     <div
       style={{
-        height: "80px",
+        height: "50%",
         width: "100%",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
         marginBottom: "20px",
+        backgroundColor: "#333", // Add the desired darker background color
+        borderRadius: "10px", // Add the desired border radius for rounded corners
       }}
     >
       <canvas
