@@ -116,6 +116,12 @@ function App() {
     setAnalyzerData({ analyzer, bufferLength, dataArray });
   };
 
+  const handleTranscriptionDataUpdate = (
+    updatedTranscriptionData: types.TranscriptionItem[]
+  ) => {
+    setTranscriptionData(updatedTranscriptionData);
+  };
+
   return (
     <div className="min-h-screen bg-gray-900">
       <div className="flex items-center justify-center">
@@ -200,6 +206,7 @@ function App() {
                     <TranscriptionOutput
                       transcriptionData={transcriptionData}
                       maxHeight={parseInt("100vh") - 250}
+                      onTranscriptionDataUpdate={handleTranscriptionDataUpdate}
                     />
                   )}
                 </div>

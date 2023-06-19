@@ -10,11 +10,15 @@ import { TranscriptionItem } from "../common/types";
 interface TranscriptionOutputProps {
   transcriptionData: TranscriptionItem[];
   maxHeight: number;
+  onTranscriptionDataUpdate: (
+    updatedTranscriptionData: TranscriptionItem[]
+  ) => void;
 }
 
 const TranscriptionOutput: React.FC<TranscriptionOutputProps> = ({
   transcriptionData,
   maxHeight,
+  onTranscriptionDataUpdate,
 }) => {
   const [editableIndex, setEditableIndex] = useState<number | null>(null);
   const [editedText, setEditedText] = useState<string>("");
@@ -56,9 +60,9 @@ const TranscriptionOutput: React.FC<TranscriptionOutputProps> = ({
 
   const finalizeChanges = () => {
     if (editableIndex !== null) {
-      // Perform any necessary update or API call with the edited text
-      // For this example, we will simply log the edited text to the console
-      console.log("Edited text:", editedText);
+      const updatedTranscriptionData = [...transcriptionData];
+      updatedTranscriptionData[editableIndex].text = editedText;
+      onTranscriptionDataUpdate(updatedTranscriptionData);
 
       setEditableIndex(null);
     }
@@ -79,8 +83,8 @@ const TranscriptionOutput: React.FC<TranscriptionOutputProps> = ({
               className={`flex flex-col hover:bg-gray-100 p-2 rounded-lg transition-colors duration-200`}
               style={{
                 minHeight: "50px",
-                flexWrap: "nowrap", // Add word-wrap CSS property
-              }} // Set a fixed minimum height for the <li> element
+                flexWrap: "nowrap",
+              }}
               onDoubleClick={() => handleDoubleClick(index)}
             >
               <span className="text-gray-500">
@@ -88,15 +92,14 @@ const TranscriptionOutput: React.FC<TranscriptionOutputProps> = ({
               </span>
               {editableIndex === index ? (
                 <div style={{ width: "100%" }}>
-                  {/* Set the width to 100% */}
                   <input
                     type="text"
                     value={editedText}
                     onChange={handleInputChange}
                     onBlur={handleBlur}
                     onKeyDown={handleKeyDown}
-                    className="mt-2 border border-gray-300 rounded-md p-2 w-full" // Add the 'w-full' class for full width
-                    autoFocus // Set autoFocus to automatically focus on the input field
+                    className="mt-2 border border-gray-300 rounded-md p-2 w-full"
+                    autoFocus
                     ref={inputRef}
                   />
                 </div>

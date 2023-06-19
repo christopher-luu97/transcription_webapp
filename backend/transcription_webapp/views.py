@@ -1,17 +1,23 @@
 from django.http import HttpResponseBadRequest, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from .transcribe import Transcribe
-from asgiref.sync import sync_to_async
+from .download import Download
 from rest_framework import viewsets
 from .models import File
 from .serializers import MediaFileSerializer
 import asyncio
 
-from asgiref.sync import sync_to_async, async_to_sync
-
-
 @csrf_exempt
 def transcribe(request):
+    """
+    API to handle transcription service
+
+    Args:
+        request (file): File object of form data
+
+    Returns:
+        JsonResponse: Formatted JsonResponse object on success
+    """
     if request.method == 'POST' and 'file' in request.FILES:
         file = request.FILES['file']
         transcriber = Transcribe()
@@ -36,6 +42,16 @@ def transcribe(request):
             return HttpResponseBadRequest("Failed to transcribe the file")
     else:
         return HttpResponseBadRequest("No file received")
+
+@csrf_exempt
+def download(request):
+    if request.method == 'POST' and 'file' in request.FILES:
+        file = request.FILES['file']
+        downloader = Download()
+        format = request.POST.get("format")
+        data = request.POST.get("data")
+        response = downloader.download(format, data)
+        return response
 
 
 class FileView(viewsets.ModelViewSet):

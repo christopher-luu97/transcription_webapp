@@ -26,17 +26,14 @@ const DownloadDropdown: React.FC<DownloadDropdownProps> = ({
       axios
         .post(
           "http://localhost:8000/backend/transcription_webapp/download/",
-          formData
+          formData,
+          { responseType: "blob" } // Set the response type to 'blob' as we expecting binary
         )
         .then((response) => {
           // Handle the response from the Django backend API
           // For this example, we will assume the response contains the file URL
-          const fileUrl = response.data.fileUrl;
-          // Trigger file download by creating an <a> element and clicking it programmatically
-          const link = document.createElement("a");
-          link.href = fileUrl;
-          link.download = `transcription.${selectedFormat}`;
-          link.click();
+          const fileUrl = URL.createObjectURL(response.data);
+          window.open(fileUrl, "_blank");
         })
         .catch((error) => {
           // Handle any errors that occur during the request
