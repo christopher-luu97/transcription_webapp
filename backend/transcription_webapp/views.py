@@ -45,13 +45,15 @@ def transcribe(request):
 
 @csrf_exempt
 def download(request):
-    if request.method == 'POST' and 'file' in request.FILES:
-        file = request.FILES['file']
+    if request.method == 'POST':
+        data = request.POST.get('data')
+        fmat = request.POST.get('format')
+        filename = request.POST.get('file_name')
         downloader = Download()
-        format = request.POST.get("format")
-        data = request.POST.get("data")
-        response = downloader.download(format, data)
+        response = downloader.download(fmat, data, filename)
         return response
+    else:
+        return HttpResponseBadRequest("No file received")
 
 
 class FileView(viewsets.ModelViewSet):

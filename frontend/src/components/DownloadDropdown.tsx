@@ -4,10 +4,12 @@ import { TranscriptionItem } from "../common/types";
 
 interface DownloadDropdownProps {
   transcriptionData: TranscriptionItem[] | null;
+  fileName?: string;
 }
 
 const DownloadDropdown: React.FC<DownloadDropdownProps> = ({
   transcriptionData,
+  fileName,
 }) => {
   const [selectedFormat, setSelectedFormat] = useState<string>("");
 
@@ -19,10 +21,15 @@ const DownloadDropdown: React.FC<DownloadDropdownProps> = ({
     if (selectedFormat) {
       // Create a new FormData instance
       const formData = new FormData();
+      formData.append("file_name", fileName ?? "");
       formData.append("data", JSON.stringify(transcriptionData));
       formData.append("format", selectedFormat);
 
-      // Make a POST request to the Django backend API
+      // Uncomment to see the data posted to the server
+      // console.log({
+      //   data: JSON.stringify(transcriptionData),
+      //   format: selectedFormat,
+      // });
       axios
         .post(
           "http://localhost:8000/backend/transcription_webapp/download/",
@@ -33,7 +40,17 @@ const DownloadDropdown: React.FC<DownloadDropdownProps> = ({
           // Handle the response from the Django backend API
           // For this example, we will assume the response contains the file URL
           const fileUrl = URL.createObjectURL(response.data);
-          window.open(fileUrl, "_blank");
+          const downloadLink = document.createElement("a");
+          downloadLink.href = fileUrl;
+          const nameWithoutExtension =
+            fileName?.split(".")[0] ?? "transcription";
+
+          // Set the filename using the input filename and selected extension
+          downloadLink.download = fileName
+            ? `${nameWithoutExtension}.${selectedFormat}`
+            : `transcription.${selectedFormat}`;
+
+          downloadLink.click();
         })
         .catch((error) => {
           // Handle any errors that occur during the request

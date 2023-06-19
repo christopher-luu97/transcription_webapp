@@ -31,7 +31,7 @@ class Download():
         writer.writeheader()
         
         # Write each segment as a CSV row
-        for segment in transcription_data['segments']:
+        for segment in transcription_data:
             writer.writerow({
                 'start_time': segment['start_time_hms'],
                 'end_time': segment['end_time_hms'],
@@ -46,12 +46,12 @@ class Download():
         
         return csv_content
     
-    def generate_srt(transcription_data):
+    def generate_srt(self, transcription_data):
         buffer = io.StringIO()
         index = 1
 
         # Write each segment as an SRT entry
-        for segment in transcription_data['segments']:
+        for segment in transcription_data:
             start_time = segment['start_time_hms']
             end_time = segment['end_time_hms']
             text = segment['text']
@@ -61,7 +61,7 @@ class Download():
             buffer.write('\n')
             
             # Write the time range
-            buffer.write(f"{start_time.replace(':', ',')} --> {end_time.replace(':', ',')}")
+            buffer.write(f"{start_time} --> {end_time}")
             buffer.write('\n')
             
             # Write the text
@@ -75,7 +75,7 @@ class Download():
 
         return srt_content
 
-    def generate_vtt(transcription_data):
+    def generate_vtt(self, transcription_data):
         buffer = io.StringIO()
 
         # Write the VTT header
@@ -83,7 +83,7 @@ class Download():
         buffer.write('\n\n')
 
         # Write each segment as a VTT cue
-        for segment in transcription_data['segments']:
+        for segment in transcription_data:
             start_time = segment['start_time_hms']
             end_time = segment['end_time_hms']
             text = segment['text']
@@ -101,10 +101,10 @@ class Download():
 
         return vtt_content
 
-    def generate_txt(transcription_data):
+    def generate_txt(self, transcription_data):
         buffer = io.StringIO()
 
-        for segment in transcription_data['segments']:
+        for segment in transcription_data:
             start_time = segment['start_time_hms']
             end_time = segment['end_time_hms']
             text = segment['text']
@@ -118,7 +118,7 @@ class Download():
 
         return txt_content
 
-    def download(self, fmat, dta):
+    def download(self, fmat, dta, filename):
         if fmat and dta:
             # Parse the JSON data
             transcription_data = json.loads(dta)
@@ -143,7 +143,7 @@ class Download():
 
             # Create the file response
             response = HttpResponse(file_content, content_type=content_type)
-            response["Content-Disposition"] = f"attachment; filename=transcription.{file_extension}"
+            response["Content-Disposition"] = f"attachment; filename={filename}.{file_extension}"
             return response
 
         return HttpResponse(status=400)

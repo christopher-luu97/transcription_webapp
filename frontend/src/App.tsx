@@ -215,7 +215,10 @@ function App() {
             <div className="flex-1 px-4">
               <div className="mb-4 items-center">
                 {" "}
-                <DownloadDropdown transcriptionData={transcriptionData} />
+                <DownloadDropdown
+                  transcriptionData={transcriptionData}
+                  fileName={selectedFile?.name}
+                />
               </div>
             </div>
           </div>
