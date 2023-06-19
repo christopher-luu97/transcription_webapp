@@ -68,7 +68,7 @@ const TranscriptionOutput: React.FC<TranscriptionOutputProps> = ({
     <div className="flex-1" style={{ width: "100%" }}>
       <div
         ref={divRef}
-        className="mt-8 overflow-y-auto"
+        className="mb-4 overflow-y-auto"
         style={{ maxHeight: `${maxHeight}px`, width: "100%" }}
       >
         <h2 className="text-2xl font-bold mb-4">Transcription Output:</h2>
@@ -77,7 +77,10 @@ const TranscriptionOutput: React.FC<TranscriptionOutputProps> = ({
             <li
               key={index}
               className={`flex flex-col hover:bg-gray-100 p-2 rounded-lg transition-colors duration-200`}
-              style={{ minHeight: "50px" }} // Set a fixed minimum height for the <li> element
+              style={{
+                minHeight: "50px",
+                flexWrap: "nowrap", // Add word-wrap CSS property
+              }} // Set a fixed minimum height for the <li> element
               onDoubleClick={() => handleDoubleClick(index)}
             >
               <span className="text-gray-500">

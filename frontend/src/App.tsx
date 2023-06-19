@@ -1,10 +1,4 @@
-import React, {
-  ChangeEvent,
-  DragEvent,
-  useState,
-  useRef,
-  useEffect,
-} from "react";
+import React, { DragEvent, useState, useRef } from "react";
 import "./App.css";
 import axios from "axios";
 import WaveForm from "./components/WaveForm";
@@ -26,9 +20,19 @@ function App() {
   const [responseStatus, setResponseStatus] = useState<number | null>(null);
   const [transcribing, setTranscribing] = useState(false);
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Disconnect the audio source if there was a previously selected file
+      if (selectedFile) {
+        const audioElement = audioElmRef.current;
+        if (audioElement) {
+          audioElement.pause();
+          audioElement.src = "";
+          audioElement.load();
+        }
+      }
+
       setSelectedFile(file);
       setAudioUrl(URL.createObjectURL(file));
       audioAnalyzer();
@@ -39,10 +43,20 @@ function App() {
     e.preventDefault();
   };
 
-  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     const file = e.dataTransfer.files?.[0];
     if (file) {
+      // Disconnect the audio source if there was a previously selected file
+      if (selectedFile) {
+        const audioElement = audioElmRef.current;
+        if (audioElement) {
+          audioElement.pause();
+          audioElement.src = "";
+          audioElement.load();
+        }
+      }
+
       setSelectedFile(file);
       setAudioUrl(URL.createObjectURL(file));
     }
@@ -95,9 +109,9 @@ function App() {
     const source = audioCtx.createMediaElementSource(audioElement);
     source.connect(analyzer);
     source.connect(audioCtx.destination);
-    source.mediaElement.onended = () => {
-      source.disconnect();
-    };
+    // source.mediaElement.onended = () => {
+    //   source.disconnect();
+    // };
 
     setAnalyzerData({ analyzer, bufferLength, dataArray });
   };
@@ -174,20 +188,28 @@ function App() {
           </div>
         </div>
         {responseStatus === 200 && (
-          <div className="flex flex-col bg-white rounded-lg">
-            <div
-              className="flex-4 px-4 overflow-auto"
-              style={{ maxHeight: "calc(100vh - 250px)" }}
-            >
-              {transcriptionData && (
-                <TranscriptionOutput
-                  transcriptionData={transcriptionData}
-                  maxHeight={parseInt("100vh") - 250}
-                />
-              )}
+          <div className="flex flex-col bg-gray-700 rounded-lg">
+            <div className="flex-4 px-4">
+              <div
+                className="flex flex-col my-4 bg-white rounded-lg overflow-auto overflow-x-hidden"
+                style={{ maxHeight: "calc(100vh - 250px)" }}
+              >
+                <div className="px-4 flex flex-col border-double border-sky-500">
+                  {" "}
+                  {transcriptionData && (
+                    <TranscriptionOutput
+                      transcriptionData={transcriptionData}
+                      maxHeight={parseInt("100vh") - 250}
+                    />
+                  )}
+                </div>
+              </div>
             </div>
             <div className="flex-1 px-4">
-              <DownloadDropdown transcriptionData={transcriptionData} />
+              <div className="mb-4 items-center">
+                {" "}
+                <DownloadDropdown transcriptionData={transcriptionData} />
+              </div>
             </div>
           </div>
         )}
