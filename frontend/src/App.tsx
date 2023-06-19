@@ -194,33 +194,42 @@ function App() {
           </div>
         </div>
         {responseStatus === 200 && (
-          <div className="flex flex-col bg-gray-700 rounded-lg">
-            <div className="flex-4 px-4">
-              <div
-                className="flex flex-col my-4 bg-white rounded-lg overflow-auto overflow-x-hidden"
-                style={{ maxHeight: "calc(100vh - 250px)" }}
-              >
-                <div className="px-4 flex flex-col border-double border-sky-500">
-                  {" "}
-                  {transcriptionData && (
-                    <TranscriptionOutput
-                      transcriptionData={transcriptionData}
-                      maxHeight={parseInt("100vh") - 250}
-                      onTranscriptionDataUpdate={handleTranscriptionDataUpdate}
-                    />
-                  )}
+          <div className="flex flex-grow pr-4">
+            <div className="flex flex-col flex-grow bg-gray-700 rounded-lg">
+              <div className="flex-4 px-4">
+                <div className="flex flex-col my-4 bg-white rounded-lg ">
+                  <div className="px-4 flex flex-col">
+                    <h2 className="mt-4 text-start text-2xl font-bold mb-4">
+                      Transcription Output:
+                    </h2>
+                    <div
+                      className="overflow-auto overflow-x-hidden"
+                      style={{ maxHeight: "calc(100vh - 400px)" }}
+                    >
+                      {" "}
+                      {transcriptionData && (
+                        <TranscriptionOutput
+                          transcriptionData={transcriptionData}
+                          maxHeight={parseInt("100vh") - 400}
+                          onTranscriptionDataUpdate={
+                            handleTranscriptionDataUpdate
+                          }
+                        />
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="flex-1 px-4">
-              <div className="mb-4 items-center">
-                {" "}
-                <DownloadDropdown
-                  transcriptionData={transcriptionData}
-                  fileName={selectedFile?.name}
-                />
+              <div className="flex-1 px-4">
+                <div className="mb-4 items-center">
+                  {" "}
+                  <DownloadDropdown
+                    transcriptionData={transcriptionData}
+                    fileName={selectedFile?.name}
+                  />
+                </div>
               </div>
-            </div>
+            </div>{" "}
           </div>
         )}
       </div>
