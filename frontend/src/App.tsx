@@ -133,18 +133,32 @@ function App() {
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
     const inputValue = event.target.value;
-    // Regular expression pattern to match the HH:MM:SS format
-    const timePattern = /^(?:[01]\d|2[0-3]):(?:[0-5]\d):(?:[0-5]\d)$/;
+    // Remove any non-digit characters from the input value
+    const cleanedValue = inputValue.replace(/[^\d]/g, "");
 
-    if (inputValue === "" || timePattern.test(inputValue)) {
-      setTimeSearch(inputValue);
+    // Limit the cleaned value to a maximum length of 6 characters (HH:MM:SS)
+    const limitedValue = cleanedValue.slice(0, 6);
+
+    // Format the limited value into the HH:MM:SS format
+    let formattedValue = "";
+    if (limitedValue.length > 0) {
+      formattedValue = limitedValue.replace(
+        /^(\d{0,2})(\d{0,2})(\d{0,2})$/,
+        (match, hour, minute, second) =>
+          `${hour ? hour + ":" : ""}${minute ? minute + ":" : ""}${second}`
+      );
     }
+    setTimeSearch(formattedValue);
   };
 
   const handleSearch = () => {
     if (!wordSearch && !timeSearch) {
       // If both wordSearch and timeSearch are empty, display unfiltered data
-      setTranscriptionData(transcriptionData);
+      if (oldTranscriptionData) {
+        setTranscriptionData(oldTranscriptionData);
+      } else {
+        setTranscriptionData(transcriptionData);
+      }
       return;
     }
 
@@ -159,11 +173,35 @@ function App() {
         );
       } else if (!wordSearch && timeSearch) {
         // Execute time search when word search is empty
-        filteredData = dataCopy.filter(
-          (item: types.TranscriptionItem) =>
-            item.start_time_hms.includes(timeSearch) ||
-            item.end_time_hms.includes(timeSearch)
-        );
+        const timeSearchParts = timeSearch.split(":");
+        if (timeSearchParts.length === 3) {
+          const [hours, minutes, seconds] = timeSearchParts;
+          const timeSearchMs =
+            parseInt(hours) * 3600 + parseInt(minutes) * 60 + parseInt(seconds);
+
+          filteredData = dataCopy.filter((item: types.TranscriptionItem) => {
+            const matchesWordSearch = item.text.includes(wordSearch);
+            const startTimeParts = item.start_time_hms.split(":");
+            const endTimeParts = item.end_time_hms.split(":");
+
+            if (startTimeParts.length === 3 && endTimeParts.length === 3) {
+              const startTimeMs =
+                parseInt(startTimeParts[0]) * 3600 +
+                parseInt(startTimeParts[1]) * 60 +
+                parseInt(startTimeParts[2]);
+              const endTimeMs =
+                parseInt(endTimeParts[0]) * 3600 +
+                parseInt(endTimeParts[1]) * 60 +
+                parseInt(endTimeParts[2]);
+
+              const matchesTimeSearch =
+                timeSearchMs >= startTimeMs && timeSearchMs <= endTimeMs;
+              return matchesWordSearch && matchesTimeSearch;
+            }
+
+            return false;
+          });
+        }
       } else if (wordSearch && timeSearch) {
         // Execute both word search and time search when both are provided
         const timeSearchParts = timeSearch.split(":");
@@ -196,6 +234,7 @@ function App() {
           });
         }
       }
+
       let oldData: types.TranscriptionItem[] = [];
       oldData = [...transcriptionData];
       setOldTranscriptionData(oldData);
@@ -253,18 +292,15 @@ function App() {
                 flex: "1",
                 display: "flex",
                 flexDirection: "column",
-                marginBottom: "1px",
               }}
             >
               {" "}
               {analyzerData && <WaveForm analyzerData={analyzerData} />}
               <div
                 style={{
-                  height: 80,
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
-                  marginBottom: "1px",
                 }}
               >
                 <audio
@@ -280,17 +316,19 @@ function App() {
                 />
               </div>
             </div>
-            <button
-              onClick={handleTranscribe}
-              className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded mb-2 button-expand"
-              disabled={!selectedFile || transcribing}
-            >
-              {transcribing && responseStatus !== 200 ? (
-                <FaSpinner className="text-3xl text-white animate-spin" />
-              ) : (
-                "Transcribe"
-              )}
-            </button>
+            <div className="pt-4">
+              <button
+                onClick={handleTranscribe}
+                className="py-2 px-4 bg-blue-500 hover:bg-blue-600 text-white rounded button-expand"
+                disabled={!selectedFile || transcribing}
+              >
+                {transcribing && responseStatus !== 200 ? (
+                  <FaSpinner className="text-3xl text-white animate-spin" />
+                ) : (
+                  "Transcribe"
+                )}
+              </button>
+            </div>
           </div>
         </div>
         {responseStatus === 200 && (
@@ -320,9 +358,9 @@ function App() {
                           onKeyDown={handleKeyPress}
                         />
                       </div>
-                      <div>
+                      <div className="pl-2 pt-2">
                         <button
-                          className="py-2 px-4 bg-gray-500 hover:bg-gray-600 text-white rounded mb-2"
+                          className="py-2 px-2 bg-gray-500 hover:bg-gray-600 text-white rounded mb-2"
                           onClick={handleReset}
                         >
                           Reset
