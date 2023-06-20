@@ -6,6 +6,7 @@ from rest_framework import viewsets
 from .models import File
 from .serializers import MediaFileSerializer
 import asyncio
+import os
 
 @csrf_exempt
 def transcribe(request):
@@ -31,6 +32,10 @@ def transcribe(request):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         data = loop.run_until_complete(transcriber.transcribe_file(file))
+
+        # Delete the uploaded media file
+        file_path = file_instance.file.path
+        os.remove(file_path)
         if data is not None:
             response_data = {
                 'status': 'success',

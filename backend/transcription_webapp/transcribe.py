@@ -119,13 +119,6 @@ class Transcribe:
             text_info.append(txt['text'])
         result_text = ''.join(text_info).strip(" ")
         output = await self._create_hms_time(result['segments'])
-        # file_obj = File()
-        # file_obj.title = "Temporary File"
-        # file_obj.transcript = result_text
-        # file_obj.file.save('transcription.txt', ContentFile(result_text))        
-        # # file.transcript = transcription['text'].strip()
-        # # file.save()
-        # data = MediaFileSerializer(file).data
         return output
 
 

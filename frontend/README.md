@@ -12,4 +12,3 @@ TO ADD:
    - Other forms of queries
    - Reduced search should have two buttons: Download ALL (this downloads all the data) and Download Filtered (Downloads only results of search)
      4.BUGS
-     - Time search preventative doesn't work
