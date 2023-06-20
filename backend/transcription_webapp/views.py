@@ -36,6 +36,7 @@ def transcribe(request):
         # Delete the uploaded media file
         file_path = file_instance.file.path
         os.remove(file_path)
+        
         if data is not None:
             response_data = {
                 'status': 'success',
