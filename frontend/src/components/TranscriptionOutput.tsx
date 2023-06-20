@@ -75,6 +75,7 @@ const TranscriptionOutput: React.FC<TranscriptionOutputProps> = ({
         className="mb-4 overflow-y-auto"
         style={{ maxHeight: `${maxHeight}px`, width: "100%" }}
       >
+        <div className=""></div>
         <ul className="space-y-4">
           {transcriptionData.map((item, index) => (
             <li
