@@ -1,4 +1,4 @@
-RUN node:16.18.35
+FROM node:16
 
 WORKDIR /frontend
 
@@ -6,6 +6,6 @@ COPY . .
 
 RUN npm install
 
-expose 3000
+EXPOSE 3000
 
 CMD ["npm", "start"]

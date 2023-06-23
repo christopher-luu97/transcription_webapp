@@ -6,7 +6,10 @@ WORKDIR /backend
 
 COPY requirements.txt ./
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade pip
+RUN apt-get update && apt-get install -y git
+RUN pip install --no-cache-dir --verbose -r requirements.txt
+RUN pip install git+https://github.com/m-bain/whisperx.git
 
 COPY . .
 

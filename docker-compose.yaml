@@ -1,6 +1,8 @@
 services:
   api:
     build: ./backend
+    environment:
+      - SECRET_KEY
     ports:
       - "8000:8000"
     volumes:

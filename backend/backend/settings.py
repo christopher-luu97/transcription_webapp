@@ -12,17 +12,20 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+import json
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-nts5#hg=@5&wlzm^b8)l1s7+!_@op68tbk$cmrximr58c+-(vi'
-
+with open(os.path.join(BASE_DIR,"backend","config","env.json")) as f:
+    creds = json.load(f)
+try:
+    SECRET_KEY = creds["SECRET_KEY"]
+#env("SECRET_KEY")
+except KeyError as e:
+    raise RuntimeError("Could not find a SECRET_KEY in environment") from e
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
