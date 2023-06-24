@@ -238,7 +238,7 @@ function App() {
       }
 
       let oldData: types.TranscriptionItem[] = [];
-      oldData = [...transcriptionData];
+      oldData = transcriptionData ? [...transcriptionData] : [...oldData];
       setOldTranscriptionData(oldData);
       setTranscriptionData(filteredData);
     }
