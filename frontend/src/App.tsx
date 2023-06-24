@@ -164,12 +164,14 @@ function App() {
 
     if (transcriptionData) {
       let filteredData: types.TranscriptionItem[] = [];
-      const dataCopy = [...transcriptionData];
+      const dataCopy = oldTranscriptionData
+        ? [...oldTranscriptionData]
+        : [...transcriptionData];
 
       if (wordSearch && !timeSearch) {
         // Execute word search when time search is empty
         filteredData = dataCopy.filter((item: types.TranscriptionItem) =>
-          item.text.includes(wordSearch)
+          item.text.toLowerCase().includes(wordSearch.toLowerCase())
         );
       } else if (!wordSearch && timeSearch) {
         // Execute time search when word search is empty
