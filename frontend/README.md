@@ -2,6 +2,9 @@
 This webapp utilizes a frontend of react with typescript, tailwindcss and a backend using Django.
 The backend logic for transcription uses the WhisperX package.
 
+You can view a demonstration of the application here:
+https://youtu.be/oGWeaHt4V7A
+
 To run this yourself, you must have Docker installed.
 Then in cmd type: docker-compose up
 Everything takes a while to spin up due to the image size, which I aim to reduce in the future.
