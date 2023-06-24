@@ -23,6 +23,11 @@ Alternatively, you can run this in developer mode:
 8. The apps should be exposed on: localhost:3000 for frontend, localhost:8000 for backend api
 9. You can view what's going on via cmd for frontend and backend when you started up the servers
 
+Use cases for this application:
+
+- Text analysis for long-form audio
+- Generate subtitles automatically for your own videos
+
 TODO:
 
 1. Let user download results to different formats (COMPLETE)
